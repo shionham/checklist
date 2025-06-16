@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko"> 
+<head>
+  <meta charset="UTF-8">
+  <title>단순 체크리스트</title>
+</head>
+<body>
+  <h1>체크리스트</h1>
+
+  <div>
+    <input type="text" id="new-task" placeholder="할 일 입력">
+      <button onclick="addTask()">추가</button>
+   
+  </div>
+
+  <ul id="todo-list"></ul>
+
+  <script>
+    function addTask() {
+      const text = document.getElementById("new-task").value.trim();
+      if (text === "") return;
+
+      const li = document.createElement("li");
+      li.textContent = text;
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "삭제";
+      deleteBtn.onclick = () => li.remove();
+
+      li.appendChild(deleteBtn);
+      document.getElementById("todo-list").appendChild(li);
+
+      document.getElementById("new-task").value = "";
+    }
+  </script>
+</body>
+</html>
