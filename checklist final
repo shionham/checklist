@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>체크리스트</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1e1e1e">
+  <link rel="icon" href="/icons/icon-192x192.png" sizes="192x192">
+  <link rel="icon" href="/icons/icon-512x512.png" sizes="512x512">
+
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: url('KakaoTalk_20250430_144930066.png') no-repeat center center fixed;
+      background-size: cover;
+     padding: 20px;
+     transition: background 0.3s, color 0.3s;
+     position: relative;
+    }
+    body.dark {
+      background: url('KakaoTalk_20250512_234048257.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #eee;
+    }
+
+    /* 기존 dark 모드 스타일 아래에 추가 */
+body.ocean {
+  background: url('KakaoTalk_20250519_230857058.png') no-repeat center center fixed;
+  background-size: cover;
+  color: #cce7ff;
+}
+
+body.ocean li {
+  background: rgba(0, 51, 102, 0.7); /* 바다 느낌 반투명 배경 */
+  color: #e0f7ff;
+}
+
+body.ocean button {
+  background-color: #005f99;
+  color: #cce7ff;
+  border: none;
+}
+
+body.ocean button:hover {
+  background-color: #007acc;
+}
+
+/* 다크모드랑 바다모드 중복 방지 스타일 고려는 JS에서 처리 */
+
+body.space {
+  background: url('KakaoTalk_20250519_232354191.png') no-repeat center center fixed;
+  background-size: cover;
+  color: #dcdcdc;
+}
+
+body.space li {
+  background: rgba(10, 10, 30, 0.7);
+  color: #e0e8ff;
+}
+
+body.space button {
+  background-color: #2a2a72;
+  color: #dcdcdc;
+  border: none;
+}
+
+body.space button:hover {
+  background-color: #4444aa;
+}
+
+body.wuxia {
+  background: url('KakaoTalk_20250519_232640471.png') no-repeat center center fixed;
+  background-size: cover;
+  color: #1a1307; /* 무협 느낌의 부드러운 황토색 */
+  font-family: 'Noto Serif KR', serif; /* 무협 느낌 폰트 예시 */
+}
+
+body.wuxia li {
+  background: rgba(35, 19, 8, 0.7); /* 짙은 갈색 반투명 */
+  color: #ffe4c4;
+  border: 1px solid #271508;
+}
+
+body.wuxia button {
+  background-color: #211207;
+  color: #ffe4c4;
+  border: none;
+  font-weight: bold;
+}
+
+body.wuxia button:hover {
+  background-color: #28140a;
+}
+
+
+
+
+
+
+    h1 {
+      text-align: center;
+    }
+    #controls-left {
+      position: absolute;
+      top: 20px;
+      left: 20px;  /* 왼쪽 위로 변경 */
+      display: flex;
+      flex-direction: column; /* 세로로 배치 */
+      justify-content: flex-start;  /* 왼쪽 정렬 */
+      gap: 2px;  /* 버튼 사이의 간격 */
+      align-items: flex-start; /* 왼쪽 정렬 */
+      z-index: 1000;
+    }
+    #controls-right {
+      position: absolute;
+      top: 20px;
+      right: 20px;  /* 오른쪽 위로 변경 */
+      display: flex;
+      flex-direction: row;  /* 가로로 배치 */
+      justify-content: flex-start;  /* 왼쪽 정렬 */
+      gap: 2px;  /* 버튼 사이의 간격 */
+      align-items: center;  /* 세로 중앙 정렬 */
+      z-index: 1000;
+    }
+    #controls button, #controls select, #controls input {
+      padding: 8px 40px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #todo-form {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input[type="text"], input[type="date"], select {
+      padding: 10px;
+      font-size: 16px;
+      width: 180px;
+    }
+    button {
+      padding: 8px 12px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;               /* 중앙 정렬 제거 */
+      width: 100%;             /* 전체 너비 사용 */
+      text-align: left; 
+    }
+    li {
+      background: white;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      transition: border 0.3s;
+      gap: 8px;
+      max-width: 30%;
+    }
+    body.dark li {
+      background: #333;
+    }
+    .completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+    @media (max-width: 600px) {
+      #todo-form {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      input, select, button {
+        width: 100% !important;
+      }
+    }
+    #history-modal {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 1000px;
+      margin: 20px auto;
+      display: none;
+
+      #history-list {
+    text-align: center;
+    padding-left: 0;
+  }
+
+  #history-list li {
+    display: block;
+    margin: 4px auto;
+  }
+    }
+
+    
+    body.dark #history-modal {
+      background: #444;
+
+       #history-list {
+    text-align: center;
+    padding-left: 0;
+  }
+
+  #history-list li {
+    display: block;
+    margin: 4px auto;
+  }
+    }
+  </style>
+</head>
+<body>
+  <h1>📝 체크리스트</h1>
+  <div id="rank-display" style="text-align: center; font-weight: bold; margin-bottom: 10px;"></div>
+
+  <!-- 점수 초기화 버튼 추가 -->
+<div id="controls-left">
+    <button onclick="toggleDarkMode()">🌙 야간모드</button>
+    <button onclick="toggleOceanMode()">🌊 바다모드</button>
+    <button onclick="toggleSpaceMode()">🚀 우주모드</button>
+    <button onclick="toggleWuxiaMode()">⚔️ 무협모드</button>
+  </div>
+
+  
+  
+
+  <div id="controls-right">
+    <input type="date" id="due-date" style="padding: 6px; font-size: 14px;">
+    <button onclick="toggleHistory()">📅 기록 보기</button>
+    <button onclick="resetPointsAndRank()">🔄 점수 초기화</button> <!-- 초기화 버튼 -->
+  </div>
+
+  <div id="todo-form">
+    <input type="text" id="new-task" placeholder="할 일 입력">
+
+
+
+    <button onclick="addTask()">추가</button>
+  </div>
+
+  <ul id="todo-list"></ul>
+
+  <div id="history-modal">
+    <h3>📖 할 일 기록</h3>
+    <ul id="history-list"></ul>
+  </div>
+
+  <script>
+
+let point = parseInt(localStorage.getItem("point") || "0");
+
+function calculateRank(score) {
+  if (score >= 2000) return "💎 다이아몬드";
+  if (score >= 1000) return "🔷 플래티넘";
+  if (score >= 500) return "🥇 골드";
+  if (score >= 200) return "🥈 실버";
+  if (score >= 50) return "🥉 브론즈";
+  return "🎯 랭크 없음";
+}
+
+function updateRankDisplay() {
+  const rankText = `${point}점 - 현재 등급: ${calculateRank(point)}`;
+  document.getElementById("rank-display").textContent = rankText;
+}
+
+function addPoints(amount) {
+  point += amount;
+  localStorage.setItem("point", point);
+  updateRankDisplay();
+}
+
+
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    let historyLog = JSON.parse(localStorage.getItem("historyLog")) || {};
+
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function saveHistoryLog() {
+      localStorage.setItem("historyLog", JSON.stringify(historyLog));
+    }
+
+    function isDueSoon(dateStr) {
+      if (!dateStr) return false;
+      const today = new Date();
+      const due = new Date(dateStr);
+      const diff = (due - today) / (1000 * 60 * 60 * 24);
+      return diff <= 1 && diff >= 0;
+    }
+
+    function resetPointsAndRank() {
+  point = 0; // 점수 초기화
+  localStorage.setItem("point", point); // 로컬스토리지에 초기화된 점수 저장
+  updateRankDisplay(); // UI에 반영
+
+  function addPoints(amount) {
+  point += amount;
+  localStorage.setItem("point", point);
+  updateRankDisplay();
+}
+
+function updateRankDisplay() {
+  const rankText = `${point}점 - 현재 등급: ${calculateRank(point)}`;
+  document.getElementById("rank-display").textContent = rankText;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  updateRankDisplay();  // 페이지 로드 시 초기 점수와 랭크 표시
+});
+}
+
+    function renderTasks() {
+      const list = document.getElementById("todo-list");
+      list.innerHTML = "";
+
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        if (isDueSoon(task.due)) {
+          li.style.border = "2px solid red";
+        }
+
+        const span = document.createElement("span");
+        span.textContent = task.text;
+
+        if (task.done) span.classList.add("completed");
+
+        const completeBtn = document.createElement("button");
+        completeBtn.textContent = task.done ? "✅ 완료됨" : "✔ 완료";
+        completeBtn.disabled = task.done;
+        completeBtn.onclick = () => toggleTask(index);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "🗑 삭제";
+        deleteBtn.onclick = () => deleteTask(index);
+
+        li.appendChild(span);
+        li.appendChild(completeBtn);
+        li.appendChild(deleteBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function addTask() {
+      const text = document.getElementById("new-task").value.trim();
+      const due = document.getElementById("due-date").value;
+
+
+      if (text === "") return;
+
+      tasks.push({ text, due, done: false });
+      saveTasks();
+
+      document.getElementById("new-task").value = "";
+      renderTasks();
+    }
+
+    function toggleTask(index) {
+
+      tasks[index].done = true;
+
+      const now = new Date();
+      const key = now.toLocaleDateString("ko-KR");
+      const dayOfWeek = now.toLocaleString('ko-KR', { weekday: 'long' });
+      if (!historyLog[key]) historyLog[key] = [];
+      historyLog[key].push(`✅ 완료: ${tasks[index].text} (${dayOfWeek})`);
+
+      addPoints(10); // 10점 추가
+
+      saveTasks();
+      saveHistoryLog();
+      renderTasks();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      saveTasks();
+      renderTasks();
+    }
+
+
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+    }
+
+    // 바다 모드 토글 함수 추가
+function toggleOceanMode() {
+  const body = document.body;
+  const isOcean = body.classList.contains("ocean");
+  if (isOcean) {
+    body.classList.remove("ocean");
+    localStorage.setItem("oceanMode", "false");
+  } else {
+    body.classList.add("ocean");
+    body.classList.remove("dark"); // 다크 모드 해제
+    body.classList.remove("space");
+    body.classList.remove("wuxia");
+    localStorage.setItem("oceanMode", "true");
+    localStorage.setItem("darkMode", "false");
+    localStorage.setItem("spaceMode", "false");
+    localStorage.setItem("wuxiaMode", "false");
+  }
+}
+
+// 기존 다크모드 함수에 바다모드 해제 추가
+function toggleDarkMode() {
+  const body = document.body;
+  const isDark = body.classList.contains("dark");
+  if (isDark) {
+    body.classList.remove("dark");
+    localStorage.setItem("darkMode", "false");
+  } else {
+    body.classList.add("dark");
+    body.classList.remove("ocean"); // 바다 모드 해제
+    body.classList.remove("space");
+    body.classList.remove("wuxia");
+    localStorage.setItem("darkMode", "true");
+    localStorage.setItem("oceanMode", "false");
+    localStorage.setItem("spaceMode", "false");
+    localStorage.setItem("wuxiaMode", "false");
+  }
+}
+
+function toggleSpaceMode() {
+  const body = document.body;
+  const isSpace = body.classList.contains("space");
+  if (isSpace) {
+    body.classList.remove("space");
+    localStorage.setItem("spaceMode", "false");
+  } else {
+    body.classList.add("space");
+    body.classList.remove("dark");
+    body.classList.remove("ocean");
+    body.classList.remove("wuxia");
+    localStorage.setItem("spaceMode", "true");
+    localStorage.setItem("darkMode", "false");
+    localStorage.setItem("oceanMode", "false");
+    localStorage.setItem("wuxiaMode", "false");
+  }
+}
+
+// 페이지 로드 시 저장된 모드 적용에 우주모드도 추가
+if (localStorage.getItem("darkMode") === "true") {
+  document.body.classList.add("dark");
+  document.body.classList.remove("ocean");
+  document.body.classList.remove("space");
+  document.body.classList.remove("wuxia");
+} else if (localStorage.getItem("oceanMode") === "true") {
+  document.body.classList.add("ocean");
+  document.body.classList.remove("dark");
+  document.body.classList.remove("space");
+  document.body.classList.remove("wuxia");
+} else if (localStorage.getItem("spaceMode") === "true") {
+  document.body.classList.add("space");
+  document.body.classList.remove("dark");
+  document.body.classList.remove("ocean");
+  document.body.classList.remove("wuxia");
+}
+
+function toggleWuxiaMode() {
+  const body = document.body;
+  const isWuxia = body.classList.contains("wuxia");
+  if (isWuxia) {
+    body.classList.remove("wuxia");
+    localStorage.setItem("wuxiaMode", "false");
+  } else {
+    body.classList.add("wuxia");
+    body.classList.remove("dark");
+    body.classList.remove("ocean");
+    body.classList.remove("space");
+    localStorage.setItem("wuxiaMode", "true");
+    localStorage.setItem("darkMode", "false");
+    localStorage.setItem("oceanMode", "false");
+    localStorage.setItem("spaceMode", "false");
+  }
+}
+
+// 페이지 로드시 저장된 모드 적용 부분에 무협모드 추가
+if (localStorage.getItem("darkMode") === "true") {
+  document.body.classList.add("dark");
+  document.body.classList.remove("ocean");
+  document.body.classList.remove("space");
+  document.body.classList.remove("wuxia");
+} else if (localStorage.getItem("oceanMode") === "true") {
+  document.body.classList.add("ocean");
+  document.body.classList.remove("dark");
+  document.body.classList.remove("space");
+  document.body.classList.remove("wuxia");
+} else if (localStorage.getItem("spaceMode") === "true") {
+  document.body.classList.add("space");
+  document.body.classList.remove("dark");
+  document.body.classList.remove("ocean");
+  document.body.classList.remove("wuxia");
+} else if (localStorage.getItem("wuxiaMode") === "true") {
+  document.body.classList.add("wuxia");
+  document.body.classList.remove("dark");
+  document.body.classList.remove("ocean");
+  document.body.classList.remove("space");
+}
+
+// 페이지 로드 시 저장된 모드 적용
+if (localStorage.getItem("darkMode") === "true") {
+  document.body.classList.add("dark");
+  document.body.classList.remove("ocean");
+} else if (localStorage.getItem("oceanMode") === "true") {
+  document.body.classList.add("ocean");
+  document.body.classList.remove("dark");
+}
+
+    function toggleHistory() {
+      const modal = document.getElementById("history-modal");
+      const list = document.getElementById("history-list");
+      list.innerHTML = "";
+
+      if (!Object.keys(historyLog).length) {
+        const li = document.createElement("li");
+        li.textContent = "📭 기록이 없습니다.";
+        list.appendChild(li);
+      } else {
+        Object.entries(historyLog).sort((a, b) => new Date(b[0]) - new Date(a[0])).forEach(([date, entries]) => {
+          const dateHeader = document.createElement("li");
+          dateHeader.innerHTML = `<strong>📅 ${date}</strong>`;
+          
+          const deleteHistoryBtn = document.createElement("button");
+          deleteHistoryBtn.textContent = "🗑 삭제";
+          deleteHistoryBtn.onclick = () => deleteHistory(date);
+
+          dateHeader.appendChild(deleteHistoryBtn);
+          list.appendChild(dateHeader);
+
+          entries.forEach(entry => {
+            const li = document.createElement("li");
+            li.textContent = entry;
+            list.appendChild(li);
+          });
+        });
+      }
+
+      modal.style.display = modal.style.display === "none" ? "block" : "none";
+    }
+
+    function deleteHistory(date) {
+      delete historyLog[date];
+      saveHistoryLog();
+      renderTasks();
+      toggleHistory();  // 기록 보기 모달 다시 닫기
+    }
+
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add("dark");
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('서비스 워커 등록 성공:', reg))
+          .catch(err => console.log('서비스 워커 등록 실패:', err));
+      });
+    }
+
+    document.getElementById("due-date").value = new Date().toISOString().split("T")[0];  // 오늘 날짜 설정
+    document.getElementById("new-task").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") addTask();
+});
+
+    renderTasks();
+ 
+    updateRankDisplay();  // 등급 표시 초기화
+
+
+  </script>
+</body>
+</html>
